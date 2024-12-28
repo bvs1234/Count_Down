@@ -27,27 +27,18 @@
 
     <script>
         function startCountdown(targetHour, targetMinute) {
-            const now = new Date();
-            const targetTime = new Date();
-            targetTime.setHours(targetHour, targetMinute, 0, 0);
-            
-            // If the target time has already passed today, set it for tomorrow
-            if (targetTime <= now) {
-                targetTime.setDate(targetTime.getDate() + 1);
-            }
+            let remainingSeconds = 60; // Start countdown from 60 seconds
 
             const interval = setInterval(function() {
-                const currentTime = new Date();
-                const timeDifference = Math.floor((targetTime - currentTime) / 1000);
-
-                if (timeDifference <= 0) {
+                if (remainingSeconds <= 0) {
                     clearInterval(interval);
                     document.getElementById('countdown').innerText = "Countdown Finished";
                     return;
                 }
 
-                document.getElementById('countdown').innerText = timeDifference;
-                speakCountdown(timeDifference);
+                document.getElementById('countdown').innerText = remainingSeconds;
+                speakCountdown(remainingSeconds);
+                remainingSeconds--;
             }, 1000);
         }
 
@@ -63,24 +54,17 @@
             const seconds = now.getSeconds().toString().padStart(2, '0');
 
             document.getElementById('timeDisplay').innerText = `${hours}:${minutes}:${seconds}`;
+
+            // Trigger countdown at 09:14:00 AM, 03:19:00 PM, and 03:29:00 PM
+            if ((hours === "09" && minutes === "14" && seconds === "00") || 
+                (hours === "15" && minutes === "19" && seconds === "00") || 
+                (hours === "15" && minutes === "29" && seconds === "00")) {
+                startCountdown();
+            }
         }
 
-        // Start countdowns at specific times
-        setInterval(updateTime, 1000); // Update the time every second
-
-        // Trigger countdown at 09:14, 03:19, and 03:29
-        setInterval(function() {
-            const now = new Date();
-            if (now.getHours() === 9 && now.getMinutes() === 14 && now.getSeconds() === 0) {
-                startCountdown(9, 15);
-            }
-            if (now.getHours() === 3 && now.getMinutes() === 19 && now.getSeconds() === 0) {
-                startCountdown(3, 20);
-            }
-            if (now.getHours() === 3 && now.getMinutes() === 29 && now.getSeconds() === 0) {
-                startCountdown(3, 30);
-            }
-        }, 1000);
+        // Update the time every second
+        setInterval(updateTime, 1000);
     </script>
 
 </body>
