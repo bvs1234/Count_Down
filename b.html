@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Display with Countdown</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #timeDisplay {
+            font-size: 48px;
+            font-weight: bold;
+        }
+        #countdown {
+            font-size: 24px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="timeDisplay"></div>
+    <div id="countdown"></div>
+
+    <script>
+        function startCountdown(targetHour, targetMinute) {
+            const now = new Date();
+            const targetTime = new Date();
+            targetTime.setHours(targetHour, targetMinute, 0, 0);
+            
+            // If the target time has already passed today, set it for tomorrow
+            if (targetTime <= now) {
+                targetTime.setDate(targetTime.getDate() + 1);
+            }
+
+            const interval = setInterval(function() {
+                const currentTime = new Date();
+                const timeDifference = Math.floor((targetTime - currentTime) / 1000);
+
+                if (timeDifference <= 0) {
+                    clearInterval(interval);
+                    document.getElementById('countdown').innerText = "Countdown Finished";
+                    return;
+                }
+
+                document.getElementById('countdown').innerText = timeDifference;
+                speakCountdown(timeDifference);
+            }, 1000);
+        }
+
+        function speakCountdown(seconds) {
+            const utterance = new SpeechSynthesisUtterance(seconds.toString());
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+
+            document.getElementById('timeDisplay').innerText = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // Start countdowns at specific times
+        setInterval(updateTime, 1000); // Update the time every second
+
+        // Trigger countdown at 09:14, 03:19, and 03:29
+        setInterval(function() {
+            const now = new Date();
+            if (now.getHours() === 9 && now.getMinutes() === 14 && now.getSeconds() === 0) {
+                startCountdown(9, 15);
+            }
+            if (now.getHours() === 3 && now.getMinutes() === 19 && now.getSeconds() === 0) {
+                startCountdown(3, 20);
+            }
+            if (now.getHours() === 3 && now.getMinutes() === 29 && now.getSeconds() === 0) {
+                startCountdown(3, 30);
+            }
+        }, 1000);
+    </script>
+
+</body>
+</html>
