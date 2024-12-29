@@ -30,7 +30,8 @@
         let readAloud = false;
         const timeElement = document.getElementById('time');
         const toggleButton = document.getElementById('toggleButton');
-
+        let synth = window.speechSynthesis;
+        
         function updateTime() {
             const now = new Date();
             const hours = now.getHours().toString().padStart(2, '0');
@@ -40,9 +41,9 @@
 
             timeElement.textContent = currentTime;
 
-            if (readAloud) {
+            if (readAloud && !synth.speaking) {
                 const utterance = new SpeechSynthesisUtterance(seconds);
-                window.speechSynthesis.speak(utterance);
+                synth.speak(utterance);
             }
         }
 
