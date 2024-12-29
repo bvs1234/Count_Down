@@ -11,22 +11,30 @@
             margin-top: 50px;
         }
         #timeDisplay {
-            font-size: 48px;
+            font-size: 72px;
             font-weight: bold;
+            margin-bottom: 30px;
         }
         #countdown {
-            font-size: 24px;
+            font-size: 48px;
             color: red;
+            margin-bottom: 30px;
+        }
+        button {
+            font-size: 24px;
+            padding: 10px 20px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
     <div id="timeDisplay"></div>
-    <div id="countdown"></div>
+    <div id="countdown">Countdown not started</div>
+    <button onclick="testTimer()">Test Timer</button>
 
     <script>
-        function startCountdown(targetHour, targetMinute) {
+        function startCountdown() {
             let remainingSeconds = 60; // Start countdown from 60 seconds
 
             const interval = setInterval(function() {
@@ -61,6 +69,10 @@
                 (hours === "15" && minutes === "29" && seconds === "00")) {
                 startCountdown();
             }
+        }
+
+        function testTimer() {
+            startCountdown();
         }
 
         // Update the time every second
