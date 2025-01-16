@@ -13,6 +13,10 @@
             text-align: center;
             margin: 0;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
         }
 
         h1 {
@@ -24,12 +28,10 @@
         .container {
             display: grid;
             grid-template-columns: 1fr 3fr 1fr; /* Sunrise, Center (Time), Sunset */
-            grid-template-rows: auto 1fr auto; 
-            height: 100vh;
             gap: 20px;
             justify-items: center;
             align-items: center;
-            padding: 20px;
+            flex-grow: 1;
         }
 
         .time-display, .calendar, .sunrise-sunset {
@@ -63,10 +65,20 @@
             padding: 20px;
             border-radius: 10px;
             background-color: #222;
+            width: 100%; /* Make the calendar full width */
+            box-sizing: border-box;
+            margin: 0; /* Removed margin to eliminate extra space */
+        }
+
+        .calendar table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
         .calendar td {
             padding: 10px;
+            width: 14.28%; /* Make each day take up 1/7th of the calendar's width */
+            text-align: center;
         }
 
         .calendar .today {
@@ -84,207 +96,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>BVS</h1>
-
-    <div class="container">
-        <!-- Sunrise time (Left) -->
-        <div class="sunrise-sunset" id="sunriseTime">Loading Sunrise...</div>
-
-        <!-- BVS Digital Clock (Center) -->
-        <div class="time-display" id="currentTime">Loading Time...</div>
-
-        <!-- Sunset time (Right) -->
-        <div class="sunrise-sunset" id="sunsetTime">Loading Sunset...</div>
-    </div>
-
-    <!-- Calendar at the bottom -->
-    <div class="calendar" id="calendar"></div>
-
-    <script>
-        let sunriseTime = "";
-        let sunsetTime = "";
-
-        // Function to fetch sunrise and sunset times for Bhubaneswar
-        async function fetchSunriseSunset() {
-            try {
-                const response = await fetch("https://api.sunrise-sunset.org/json?lat=20.2961&lng=85.8245&formatted=0");
-                const data = await response.json();
-
-                // Convert UTC to local time (IST)
-                sunriseTime = new Date(data.results.sunrise).toLocaleTimeString('en-IN', { hour12: false, timeZone: 'Asia/Kolkata' });
-                sunsetTime = new Date(data.results.sunset).toLocaleTimeString('en-IN', { hour12: false, timeZone: 'Asia/Kolkata' });
-
-                document.getElementById("sunriseTime").innerHTML = `Sunrise: <span>${sunriseTime}</span>`;
-                document.getElementById("sunsetTime").innerHTML = `Sunset: <span>${sunsetTime}</span>`;
-            } catch (error) {
-                console.error("Error fetching sunrise/sunset times:", error);
-            }
-        }
-
-        // Function to update the current time and date
-        function updateDateTime() {
-            const now = new Date();
-            const currentTime = now.toLocaleTimeString('en-IN', { hour12: false });
-            const currentDate = now.toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
-            const currentDay = now.toLocaleDateString('en-IN', { weekday: 'long' });
-
-            document.getElementById("currentTime").innerHTML = currentTime;
-
-            // Highlight the current date in the calendar
-            updateCalendar(currentDate);
-
-            // Check if current time matches sunrise or sunset
-            if (currentTime === sunriseTime || currentTime === sunsetTime) {
-                beepForOneMinute();
-            }
-        }
-
-        // Function to beep for 1 minute
-        function beepForOneMinute() {
-            const endTime = Date.now() + 60000; // 1 minute from now
-
-            function beep() {
-                if (Date.now() < endTime) {
-                    const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
-                    audio.play();
-                    setTimeout(beep, 1000); // Beep every second
-                }
-            }
-
-            beep();
-        }
-
-        // Function to update the calendar and highlight the current date
-        function updateCalendar(currentDate) {
-            const currentDateObj = new Date(currentDate);
-            const currentMonth = currentDateObj.getMonth();
-            const currentYear = currentDateObj.getFullYear();
-            const currentDay = currentDateObj.getDate();
-
-            const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-            const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
-            const daysInMonth = lastDayOfMonth.getDate();
-
-            let calendarHtml = "<table><tr>";
-
-            // Days of the week
-            ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(day => {
-                calendarHtml += `<th>${day}</th>`;
-            });
-            calendarHtml += "</tr><tr>";
-
-            // Add empty cells for days before the first day of the month
-            for (let i = 0; i < firstDayOfMonth.getDay(); i++) {
-                calendarHtml += "<td></td>";
-            }
-
-            // Add the days of the month
-            for (let day = 1; day <= daysInMonth; day++) {
-                if ((firstDayOfMonth.getDay() + day - 1) % 7 === 0 && day !== 1) {
-                    calendarHtml += "</tr><tr>";
-                }
-                calendarHtml += `<td class="${day === currentDay ? 'today' : ''}">${day}</td>`;
-            }
-
-            calendarHtml += "</tr></table>";
-            document.getElementById("calendar").innerHTML = calendarHtml;
-        }
-
-        // Fetch sunrise and sunset times once the page loads
-        fetchSunriseSunset();
-
-        // Update the date, day, and time every second
-        setInterval(updateDateTime, 1000);
-    </script>
-</body>
-</html>
-<!-- filename bvs.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BVS</title>
-    <style>
-        body {
-            font-family: 'Courier New', monospace;
-            background-color: #1e1e1e;
-            color: #00ffcc;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-
-        h1 {
-            font-size: 2.5em;
-            text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
-            margin-top: 20px;
-        }
-
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 3fr 1fr; /* Sunrise, Center (Time), Sunset */
-            grid-template-rows: auto 1fr auto; 
-            height: 100vh;
-            gap: 20px;
-            justify-items: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .time-display, .calendar, .sunrise-sunset {
-            font-size: 2em;
-            font-weight: bold;
-            margin: 10px;
-            padding: 15px;
-            background-color: rgba(0, 255, 204, 0.1);
-            border-radius: 10px;
-            text-align: center;
-            width: 80%;
-            box-shadow: 0 0 15px #00ffcc;
-            animation: glow 1.5s infinite alternate;
-        }
-
-        .time-display {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 5em;
-            text-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc, 0 0 40px #00ffcc;
-        }
-
-        .sunrise-sunset {
-            font-size: 1.5em;
-        }
-
-        .calendar {
-            display: inline-block;
-            text-align: left;
-            font-size: 1.2em;
-            border: 2px solid #00ffcc;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #222;
-        }
-
-        .calendar td {
-            padding: 10px;
-        }
-
-        .calendar .today {
-            background-color: #00ffcc;
-            color: #1e1e1e;
-            border-radius: 10px;
-        }
-
-        @keyframes glow {
-            0% { box-shadow: 0 0 10px #00ffcc; }
-            100% { box-shadow: 0 0 30px #00ffcc; }
-        }
-
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
-</head>
-<body>
-    <h1>BVS</h1>
+    <h1>📈📉</h1>
 
     <div class="container">
         <!-- Sunrise time (Left) -->
